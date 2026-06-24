@@ -1,0 +1,21 @@
+# Banco de Dados
+*.db
+*.sqlite3
+inventario.db
+backend/inventario.db
+
+# Arquivos do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller / Build
+build/
+dist/
+*.spec
+*.exe
+
+# Variáveis de Ambiente e Virtuais (Boas Práticas para o futuro)
+.env
+venv/
+env/
