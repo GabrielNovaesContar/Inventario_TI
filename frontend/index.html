@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventário Corporativo TI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-100 h-screen flex flex-col font-sans text-slate-800">
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2 pointer-events-none"></div>
+
+    <div id="login-screen" class="flex items-center justify-center h-full">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-96 border-t-4 border-blue-600">
+            <h1 class="text-2xl font-bold mb-6 text-center">Acesso Restrito - TI</h1>
+            <input type="email" id="email" placeholder="E-mail" class="w-full p-2 mb-4 border rounded focus:ring-2 focus:ring-blue-500" value="admin@ti.com">
+            <input type="password" id="password" placeholder="Senha" class="w-full p-2 mb-6 border rounded focus:ring-2 focus:ring-blue-500" value="123456">
+            <button onclick="fazerLogin()" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">Entrar</button>
+        </div>
+    </div>
+
+    <div id="app-screen" class="hidden flex-col h-full">
+        <nav class="bg-slate-900 text-white p-4 shadow-md flex justify-between items-center z-10 relative">
+            <div class="flex items-center gap-4">
+                <h1 class="text-xl font-bold tracking-wide">Inventário TI</h1>
+                <div class="h-6 w-px bg-slate-600"></div>
+                <button id="btn-aba-lista" onclick="mudarAba('lista')" class="hover:text-blue-400 font-semibold transition px-2 py-1 rounded">Equipamentos</button>
+                <button id="btn-aba-pecas" onclick="mudarAba('pecas')" class="hover:text-blue-400 font-semibold transition px-2 py-1 rounded">Estoque de Peças</button>
+                <button id="btn-aba-suprimentos" onclick="mudarAba('suprimentos')" class="hover:text-blue-400 font-semibold transition px-2 py-1 rounded">Toners e Drums</button>
+                <button id="btn-aba-dashboard" onclick="mudarAba('dashboard')" class="hover:text-blue-400 font-semibold transition px-2 py-1 rounded">Dashboard</button>
+            </div>
+            <button onclick="sair()" class="bg-slate-700 px-4 py-2 rounded hover:bg-red-600 text-sm font-bold transition">Sair</button>
+        </nav>
+
+        <div class="flex-1 p-8 max-w-[1400px] mx-auto w-full overflow-y-auto">
+            
+            <div id="aba-lista" class="hidden">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-2xl font-bold">Gestão de Equipamentos</h2>
+                    <button onclick="abrirModalNovo()" class="bg-blue-600 text-white font-bold py-2 px-6 rounded shadow hover:bg-blue-700 transition">
+                        + Novo Equipamento
+                    </button>
+                </div>
+
+                <div class="bg-white p-4 rounded-t-lg border-b border-slate-200 flex gap-4 bg-slate-50 flex-wrap">
+                    <select id="filtro-categoria" onchange="aplicarFiltros()" class="p-2 border rounded text-sm w-48 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todas as Categorias</option>
+                        <option value="COMPUTADOR">Computador</option>
+                        <option value="NOTEBOOK">Notebook</option>
+                        <option value="MONITOR">Monitor</option>
+                        <option value="NOBREAK">Nobreak</option>
+                        <option value="PERIFERICO">Periférico</option>
+                    </select>
+                    <select id="filtro-status" onchange="aplicarFiltros()" class="p-2 border rounded text-sm w-48 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos os Status</option>
+                        <option value="IN_STOCK">Em Estoque</option>
+                        <option value="IN_USE">Em Uso</option>
+                        <option value="MAINTENANCE">Manutenção</option>
+                    </select>
+                    <select id="filtro-setor" onchange="aplicarFiltros()" class="p-2 border rounded text-sm w-48 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos os Setores</option>
+                        <option value="TI">TI</option>
+                        <option value="RH">RH</option>
+                        <option value="CONTABIL_1">Contábil 1</option>
+                        <option value="CONTABIL_2">Contábil 2</option>
+                        <option value="LEGALIZACAO">Legalização</option>
+                        <option value="DP_1">DP 1</option>
+                        <option value="DP_2">DP 2</option>
+                        <option value="ADMINISTRATIVO">Administrativo</option>
+                        <option value="FISCAL_1">Fiscal 1</option>
+                        <option value="FISCAL_2">Fiscal 2</option>
+                        <option value="RECEPCAO">Recepção</option>
+                        <option value="SALA_REUNIAO">Sala de Reunião</option>
+                        <option value="GERAL">Geral</option>
+                        <option value="DIRETORIA_1">Diretoria 1</option>
+                        <option value="DIRETORIA_2">Diretoria 2</option>
+                        <option value="DIRETORIA_3">Diretoria 3</option>
+                    </select>
+                </div>
+
+                <div class="bg-white rounded-b-lg shadow overflow-hidden border border-slate-200 border-t-0">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-300">
+                                <th class="p-4 font-bold text-sm text-slate-600">Patrimônio / N/S</th>
+                                <th class="p-4 font-bold text-sm text-slate-600">Equipamento</th>
+                                <th class="p-4 font-bold text-sm text-slate-600">Categoria</th>
+                                <th class="p-4 font-bold text-sm text-slate-600">Setor / Resp.</th>
+                                <th class="p-4 font-bold text-sm text-slate-600">Status</th>
+                                <th class="p-4 font-bold text-sm text-slate-600 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-ativos" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="aba-pecas" class="hidden">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-2xl font-bold">Estoque de Peças (Hardware)</h2>
+                    <button onclick="abrirModalPeca()" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded shadow hover:bg-indigo-700 transition">
+                        + Nova Peça
+                    </button>
+                </div>
+                
+                <div class="bg-white p-4 rounded-t-lg border-b border-slate-200 flex gap-4 bg-slate-50">
+                    <input type="text" id="filtro-busca-peca" onkeyup="aplicarFiltroPecas()" placeholder="Buscar componente..." class="p-2 border rounded text-sm w-64 focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="bg-white rounded-b-lg shadow overflow-hidden border border-slate-200 border-t-0">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-indigo-50 border-b border-indigo-100">
+                                <th class="p-4 font-bold text-sm text-slate-600 w-1/3">Componente</th>
+                                <th class="p-4 font-bold text-sm text-slate-600 w-1/4">Marca / Detalhes</th>
+                                <th class="p-4 font-bold text-sm text-slate-600 text-center w-1/4">Quantidade (Entrada/Saída)</th>
+                                <th class="p-4 font-bold text-sm text-slate-600 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-pecas" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="aba-suprimentos" class="hidden">
+                <div class="grid grid-cols-2 gap-8">
+                    <div>
+                        <div class="flex justify-between items-end mb-4">
+                            <h2 class="text-xl font-bold">Estoque Atual</h2>
+                            <button onclick="abrirModalSuprimento()" class="bg-emerald-600 text-white font-bold py-2 px-4 rounded shadow hover:bg-emerald-700 text-sm transition">
+                                + Entrada de Suprimento
+                            </button>
+                        </div>
+                        <div class="bg-white p-3 rounded-t-lg border-b border-slate-200 flex gap-2 bg-slate-50">
+                            <select id="filtro-tipo-sup" onchange="aplicarFiltroSuprimentos()" class="p-2 border rounded text-sm w-32 focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Todos</option>
+                                <option value="TONER">Toner</option>
+                                <option value="DRUM">Drum</option>
+                            </select>
+                            <input type="text" id="filtro-busca-sup" onkeyup="aplicarFiltroSuprimentos()" placeholder="Buscar modelo..." class="p-2 border rounded text-sm flex-1 focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div class="bg-white rounded-b-lg shadow overflow-hidden border border-slate-200 border-t-0">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-emerald-50 border-b">
+                                        <th class="p-3 font-bold text-slate-600">Tipo</th>
+                                        <th class="p-3 font-bold text-slate-600">Modelo</th>
+                                        <th class="p-3 font-bold text-slate-600 text-center">Controle (Qtd.)</th>
+                                        <th class="p-3 font-bold text-slate-600 text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-suprimentos" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 class="text-xl font-bold mb-4 text-slate-600">Guia de Impressoras por Setor</h2>
+                        <div class="bg-white rounded-lg shadow overflow-hidden border border-slate-200">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-slate-200">
+                                        <th class="p-3 font-bold">SETOR</th>
+                                        <th class="p-3 font-bold">TONER</th>
+                                        <th class="p-3 font-bold">DRUM</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr><td class="p-2 font-semibold pl-4">DIRETORIA 1, 2 e 3</td><td class="p-2">CB435</td><td class="p-2 text-slate-400">NULL</td></tr>
+                                    <tr class="bg-slate-50"><td class="p-2 font-semibold pl-4">ADM</td><td class="p-2 font-bold text-green-700">TN410/420/450</td><td class="p-2 font-bold text-green-700">DR420/450</td></tr>
+                                    <tr><td class="p-2 font-semibold pl-4">FISCAL 1</td><td class="p-2 font-bold text-red-600">TN3442/3472/3492</td><td class="p-2 font-bold text-red-600">DR3440</td></tr>
+                                    <tr class="bg-slate-50"><td class="p-2 font-semibold pl-4">FISCAL 2</td><td class="p-2 font-bold text-emerald-900">TN660/630</td><td class="p-2 font-bold text-emerald-900">B-DR630/660</td></tr>
+                                    <tr><td class="p-2 font-semibold pl-4">DP 1 e CONTÁBIL 1</td><td class="p-2 font-bold text-purple-600">TN3662LXS</td><td class="p-2 font-bold text-purple-600">DR3602</td></tr>
+                                    <tr class="bg-slate-50"><td class="p-2 font-semibold pl-4">DP 2</td><td class="p-2 font-bold text-green-700">TN410/420/450</td><td class="p-2 font-bold text-green-700">DR420/450</td></tr>
+                                    <tr><td class="p-2 font-semibold pl-4">CONTÁBIL 2 e LEGALIZAÇÃO</td><td class="p-2 font-bold text-blue-600">TN1060</td><td class="p-2 font-bold text-blue-600">DR1060</td></tr>
+                                    <tr class="bg-slate-50"><td class="p-2 font-semibold pl-4">RECEPÇÃO e CLAUDIO(ADM)</td><td class="p-2">CB435</td><td class="p-2 text-slate-400">NULL</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="aba-dashboard" class="hidden animate-fade-in">
+    <div class="flex justify-between items-end mb-6">
+        <div>
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Painel de Controle TI</h2>
+            <p class="text-slate-500 text-sm mt-1">Visão geral do parque tecnológico e suprimentos.</p>
+        </div>
+        <button onclick="atualizarDashboard()" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded hover:bg-slate-300 transition text-sm flex items-center gap-2">
+            🔄 Atualizar Dados
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+            <div>
+                <p class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Total de Equipamentos</p>
+                <p class="text-4xl font-black text-blue-600" id="dash-kpi-total">0</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-2xl font-bold">💻</div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+            <div>
+                <p class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Em Manutenção</p>
+                <p class="text-4xl font-black text-red-500" id="dash-kpi-manutencao">0</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-500 text-2xl font-bold">🔧</div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+            <div>
+                <p class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Peças em Estoque</p>
+                <p class="text-4xl font-black text-indigo-500" id="dash-kpi-pecas">0</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 text-2xl font-bold">⚙️</div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between border-l-4 border-l-amber-500">
+            <div>
+                <p class="text-sm font-bold text-amber-600 uppercase tracking-wider mb-1">Toners em Baixa</p>
+                <p class="text-4xl font-black text-amber-500" id="dash-kpi-toner-alerta">0</p>
+                <p class="text-xs text-slate-400 mt-1">Modelos com menos de 3 un.</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 text-2xl font-bold">🖨️</div>
+        </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h3 class="text-lg font-bold text-slate-700 mb-4 border-b pb-2">Distribuição por Setor</h3>
+            <div class="relative h-64 w-full">
+                <canvas id="graficoSetores"></canvas>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center">
+                <h3 class="text-md font-bold text-slate-700 mb-4 w-full border-b pb-2 text-center">Por Categoria</h3>
+                <div class="relative h-48 w-full">
+                    <canvas id="graficoCategorias"></canvas>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="text-md font-bold text-slate-700 mb-4 border-b pb-2 text-center">Status do Parque</h3>
+                <div class="flex flex-col gap-4 mt-6">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1"><span class="font-bold text-slate-600">Ativos em Uso</span><span class="font-bold text-blue-600" id="barra-uso-txt">0%</span></div>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5"><div id="barra-uso-fill" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1"><span class="font-bold text-slate-600">Em Estoque (Livre)</span><span class="font-bold text-green-600" id="barra-estoque-txt">0%</span></div>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5"><div id="barra-estoque-fill" class="bg-green-500 h-2.5 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1"><span class="font-bold text-slate-600">Manutenção / Defeito</span><span class="font-bold text-red-600" id="barra-manut-txt">0%</span></div>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5"><div id="barra-manut-fill" class="bg-red-500 h-2.5 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        </div>
+    </div>
+
+    <div id="modal-confirmacao" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[80]">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-[400px]">
+            <h2 class="text-xl font-bold mb-2 text-slate-800">Confirmação</h2>
+            <p id="msg-confirmacao" class="text-slate-600 mb-6">Tem certeza que deseja continuar?</p>
+            <div class="flex justify-end gap-2">
+                <button onclick="fecharConfirmacao()" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded">Cancelar</button>
+                <button id="btn-confirmar" class="bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-700">Sim, Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-ativo" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-y-auto pt-10 pb-10 z-40">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-[650px] my-auto">
+            <h2 id="modal-titulo" class="text-xl font-bold mb-4 border-b pb-2">Novo Equipamento</h2>
+            <input type="hidden" id="ativo-id">
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Nome do Equipamento *</label>
+                    <input type="text" id="ativo-nome" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Patrimônio *</label>
+                    <input type="text" id="ativo-patrimonio" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Número de Série (S/N)</label>
+                    <input type="text" id="ativo-sn" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="Ex: BR12345ABC">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Responsável Atual</label>
+                    <input type="text" id="ativo-responsavel" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="Ex: João da Silva">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Categoria</label>
+                    <select id="ativo-categoria" onchange="toggleSpecs()" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 bg-slate-50">
+                        <option value="COMPUTADOR">Computador</option>
+                        <option value="NOTEBOOK">Notebook</option>
+                        <option value="MONITOR">Monitor</option>
+                        <option value="NOBREAK">Nobreak</option>
+                        <option value="PERIFERICO">Periférico</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Status</label>
+                    <select id="ativo-status" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 bg-slate-50">
+                        <option value="IN_STOCK">Em Estoque</option>
+                        <option value="IN_USE">Em Uso</option>
+                        <option value="MAINTENANCE">Manutenção</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Setor</label>
+                    <select id="ativo-setor" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 bg-slate-50 text-sm">
+                        <option value="TI">TI</option>
+                        <option value="RH">RH</option>
+                        <option value="CONTABIL_1">Contábil 1</option>
+                        <option value="CONTABIL_2">Contábil 2</option>
+                        <option value="LEGALIZACAO">Legalização</option>
+                        <option value="DP_1">DP 1</option>
+                        <option value="DP_2">DP 2</option>
+                        <option value="ADMINISTRATIVO">Administrativo</option>
+                        <option value="FISCAL_1">Fiscal 1</option>
+                        <option value="FISCAL_2">Fiscal 2</option>
+                        <option value="RECEPCAO">Recepção</option>
+                        <option value="SALA_REUNIAO">Sala de Reunião</option>
+                        <option value="GERAL">Geral</option>
+                        <option value="DIRETORIA_1">Diretoria 1</option>
+                        <option value="DIRETORIA_2">Diretoria 2</option>
+                        <option value="DIRETORIA_3">Diretoria 3</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="div-specs" class="mb-6 bg-slate-50 p-4 rounded border hidden">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Especificações Técnicas (Processador, RAM, Armazenamento)</label>
+                <textarea id="ativo-specs" rows="2" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-4 border-t">
+                <button onclick="fecharModal()" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded">Cancelar</button>
+                <button onclick="salvarAtivo()" class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700">Salvar Dados</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-historico" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-y-auto pt-10 pb-10 z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-[700px] my-auto">
+            <div class="flex justify-between items-center border-b pb-2 mb-4">
+                <h2 class="text-xl font-bold">Histórico do Equipamento</h2>
+                <button onclick="fecharModalHistorico()" class="text-red-500 font-bold text-xl hover:text-red-700">&times;</button>
+            </div>
+            <h3 id="historico-titulo-ativo" class="text-lg text-slate-600 font-mono mb-6"></h3>
+            <input type="hidden" id="historico-ativo-id">
+
+            <div class="bg-slate-50 p-4 rounded border border-slate-200 mb-6">
+                <h4 class="font-bold text-sm mb-3">Adicionar Novo Registro</h4>
+                <div class="flex gap-2">
+                    <input type="date" id="hist-data" class="p-2 border rounded text-sm w-36 focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="hist-user" placeholder="Técnico/Responsável" class="p-2 border rounded w-48 text-sm focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="hist-acao" placeholder="O que foi feito? (Ex: Formatação)" class="flex-1 p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500">
+                    <button onclick="salvarHistorico()" class="bg-blue-600 text-white font-bold px-4 rounded hover:bg-blue-700">Registrar</button>
+                </div>
+            </div>
+
+            <div class="max-h-64 overflow-y-auto border rounded">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="sticky top-0 bg-slate-200">
+                        <tr><th class="p-2">Data</th><th class="p-2">Ação</th><th class="p-2">Técnico</th><th class="p-2 w-12"></th></tr>
+                    </thead>
+                    <tbody id="tabela-historico" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-peca" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-[400px]">
+            <h2 id="modal-titulo-peca" class="text-xl font-bold mb-4 border-b pb-2">Registrar Peça</h2>
+            <input type="hidden" id="peca-id">
+            
+            <label class="block text-sm font-bold text-gray-700 mb-1">Componente (Ex: Placa Mãe, Fonte)</label>
+            <input type="text" id="peca-nome" class="w-full p-2 mb-4 border rounded focus:ring-2 focus:ring-indigo-500">
+            
+            <label class="block text-sm font-bold text-gray-700 mb-1">Marca / Especificação</label>
+            <input type="text" id="peca-marca" class="w-full p-2 mb-4 border rounded focus:ring-2 focus:ring-indigo-500">
+            
+            <label class="block text-sm font-bold text-gray-700 mb-1">Quantidade</label>
+            <input type="number" id="peca-qtd" class="w-full p-2 mb-6 border rounded focus:ring-2 focus:ring-indigo-500" value="1">
+            
+            <div class="flex justify-end gap-2">
+                <button onclick="fecharModalPeca()" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded">Cancelar</button>
+                <button onclick="salvarPeca()" class="bg-indigo-600 text-white px-6 py-2 rounded font-bold hover:bg-indigo-700">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-suprimento" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-[400px]">
+            <h2 id="modal-titulo-sup" class="text-xl font-bold mb-4 border-b pb-2">Entrada de Suprimento</h2>
+            <input type="hidden" id="sup-id">
+
+            <label class="block text-sm font-bold text-gray-700 mb-1">Tipo</label>
+            <select id="sup-tipo" class="w-full p-2 mb-4 border rounded focus:ring-2 focus:ring-emerald-500">
+                <option value="TONER">Toner</option>
+                <option value="DRUM">Drum / Cilindro</option>
+            </select>
+            
+            <label class="block text-sm font-bold text-gray-700 mb-1">Modelo (Ex: TN3442)</label>
+            <input type="text" id="sup-modelo" class="w-full p-2 mb-4 border rounded focus:ring-2 focus:ring-emerald-500 uppercase">
+            
+            <label class="block text-sm font-bold text-gray-700 mb-1">Quantidade Adicionada</label>
+            <input type="number" id="sup-qtd" class="w-full p-2 mb-6 border rounded focus:ring-2 focus:ring-emerald-500" value="1">
+            
+            <div class="flex justify-end gap-2">
+                <button onclick="fecharModalSup()" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded">Cancelar</button>
+                <button onclick="salvarSuprimento()" class="bg-emerald-600 text-white px-6 py-2 rounded font-bold hover:bg-emerald-700">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/assets.js"></script>
+    <script src="js/parts.js"></script>
+    <script src="js/supplies.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
