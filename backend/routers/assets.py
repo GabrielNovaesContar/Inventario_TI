@@ -1,9 +1,19 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from schemas import AssetRequest, HistoryRequest
 from database import get_db_connection
 import uuid
+import datetime
+from security import get_current_user # <-- Importando o nosso cadeado
 
-router = APIRouter(prefix="/api/v1", tags=["Assets"])
+# Adicionamos o "dependencies" aqui. 
+# Agora, TODAS as rotas de equipamentos exigem a chave!
+router = APIRouter(
+    prefix="/api/v1", 
+    tags=["Assets"],
+    dependencies=[Depends(get_current_user)] 
+)
+
+# ... (o resto do código continua igualzinho, não precisa mexer em nada abaixo disso)
 
 @router.post("/assets")
 def create_asset(asset: AssetRequest):

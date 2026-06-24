@@ -7,18 +7,30 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function fazerLogin() {
+    // Agora o sistema captura o que você realmente digitou na tela
+    const emailDigitado = document.getElementById("email").value;
+    const senhaDigitada = document.getElementById("password").value;
+
     try {
         const response = await fetch(`${API_URL}/auth/login`, {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: "admin", password: "123" })
+            method: "POST", 
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: emailDigitado, password: senhaDigitada })
         });
+        
         if (response.ok) {
             const data = await response.json();
+            // Guarda o token real criptografado no navegador
             localStorage.setItem("token_ti", data.token); 
             mostrarPainel();
-            mostrarToast("Login efetuado com sucesso!", "success");
-        } else mostrarToast("Credenciais inválidas!", "error");
-    } catch (error) { mostrarToast("Servidor Python offline!", "error"); }
+            mostrarToast("Bem-vindo, " + data.user_name + "!", "success");
+        } else {
+            // Se o FastAPI retornar o erro 401 que configuramos
+            mostrarToast("E-mail ou senha incorretos!", "error");
+        }
+    } catch (error) { 
+        mostrarToast("Servidor Python offline!", "error"); 
+    }
 }
 
 function sair() { 

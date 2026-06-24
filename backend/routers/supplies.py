@@ -1,9 +1,15 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from schemas import SupplyRequest
 from database import get_db_connection
 import uuid
+from security import get_current_user # <-- Importando o cadeado
 
-router = APIRouter(prefix="/api/v1", tags=["Supplies"])
+# Adicionamos o cadeado aqui
+router = APIRouter(
+    prefix="/api/v1", 
+    tags=["Supplies"],
+    dependencies=[Depends(get_current_user)]
+)
 
 @router.post("/supplies")
 def create_supply(supply: SupplyRequest):
@@ -24,11 +30,11 @@ def update_supply(sup_id: str, supply: SupplyRequest):
     conn = get_db_connection()
     conn.cursor().execute("UPDATE supplies SET type=?, model=?, quantity=? WHERE id=?", (supply.type, supply.model, supply.quantity, sup_id))
     conn.commit()
-    return {"message": "Suprimento atualizado com sucesso"}
+    return {"message": "Atualizado"}
 
 @router.delete("/supplies/{sup_id}")
 def delete_supply(sup_id: str):
     conn = get_db_connection()
     conn.cursor().execute("DELETE FROM supplies WHERE id=?", (sup_id,))
     conn.commit()
-    return {"message": "Deletado com sucesso"}
+    return {"message": "Deletado"}

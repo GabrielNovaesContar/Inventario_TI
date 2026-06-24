@@ -1,10 +1,15 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from schemas import PartRequest
 from database import get_db_connection
 import uuid
+from security import get_current_user # <-- Importando o cadeado
 
-# Mudamos o prefixo para a raiz da API, igual aos ativos
-router = APIRouter(prefix="/api/v1", tags=["Parts"])
+# Adicionamos o cadeado aqui
+router = APIRouter(
+    prefix="/api/v1", 
+    tags=["Parts"],
+    dependencies=[Depends(get_current_user)]
+)
 
 @router.post("/parts")
 def create_part(part: PartRequest):
@@ -25,7 +30,7 @@ def update_part(part_id: str, part: PartRequest):
     conn = get_db_connection()
     conn.cursor().execute("UPDATE parts SET name=?, brand=?, quantity=? WHERE id=?", (part.name, part.brand, part.quantity, part_id))
     conn.commit()
-    return {"message": "Peça atualizada com sucesso"}
+    return {"message": "Atualizado com sucesso"}
 
 @router.delete("/parts/{part_id}")
 def delete_part(part_id: str):
