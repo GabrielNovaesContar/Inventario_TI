@@ -12,12 +12,28 @@
     <div id="toast-container" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2 pointer-events-none"></div>
 
     <div id="login-screen" class="flex items-center justify-center h-full">
-        <div class="bg-white p-8 rounded-lg shadow-lg w-96 border-t-4 border-blue-600">
+        
+        <div id="card-login" class="bg-white p-8 rounded-lg shadow-lg w-96 border-t-4 border-blue-600">
             <h1 class="text-2xl font-bold mb-6 text-center">Acesso Restrito - TI</h1>
             <input type="email" id="email" placeholder="E-mail" class="w-full p-2 mb-4 border rounded focus:ring-2 focus:ring-blue-500" value="admin@ti.com">
             <input type="password" id="password" placeholder="Senha" class="w-full p-2 mb-6 border rounded focus:ring-2 focus:ring-blue-500" value="123456">
             <button onclick="fazerLogin()" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">Entrar</button>
+            <p class="text-sm text-center text-slate-500 mt-6">
+                Não tem uma conta? <a href="#" onclick="toggleTelasAuth()" class="text-blue-600 font-semibold hover:underline">Cadastre-se</a>
+            </p>
         </div>
+
+        <div id="card-cadastro" class="bg-white p-8 rounded-lg shadow-lg w-96 border-t-4 border-emerald-500 hidden">
+            <h1 class="text-2xl font-bold mb-6 text-center">Criar Conta TI</h1>
+            <input type="text" id="reg-name" placeholder="Nome Completo" class="w-full p-2 mb-4 border rounded focus:ring-2 focus:ring-emerald-500">
+            <input type="email" id="reg-email" placeholder="E-mail Corporativo" class="w-full p-2 mb-4 border rounded focus:ring-2 focus:ring-emerald-500">
+            <input type="password" id="reg-password" placeholder="Senha (Mínimo 6 caracteres)" class="w-full p-2 mb-6 border rounded focus:ring-2 focus:ring-emerald-500">
+            <button onclick="fazerCadastro()" class="w-full bg-emerald-600 text-white font-bold py-2 px-4 rounded hover:bg-emerald-700 transition">Finalizar Cadastro</button>
+            <p class="text-sm text-center text-slate-500 mt-6">
+                Já possui uma conta? <a href="#" onclick="toggleTelasAuth()" class="text-emerald-600 font-semibold hover:underline">Fazer Login</a>
+            </p>
+        </div>
+
     </div>
 
     <div id="app-screen" class="hidden flex-col h-full">
