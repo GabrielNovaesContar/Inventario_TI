@@ -33,7 +33,8 @@ document.getElementById('btn-confirmar').addEventListener('click', () => {
 });
 
 function mudarAba(aba) {
-    ["lista", "pecas", "suprimentos", "dashboard"].forEach(id => {
+    // 1. Array atualizado com a aba "usuarios"
+    ["lista", "pecas", "suprimentos", "dashboard", "usuarios"].forEach(id => {
         document.getElementById(`aba-${id}`).classList.add("hidden");
         document.getElementById(`btn-aba-${id}`).classList.remove("bg-slate-800");
     });
@@ -42,5 +43,10 @@ function mudarAba(aba) {
     document.getElementById(`btn-aba-${aba}`).classList.add("bg-slate-800");
     localStorage.setItem("aba_atual", aba);
 
-    if(aba === 'dashboard') atualizarDashboard();
+    // 2. Usando a variável "aba" corretamente para todas as condições
+    if (aba === 'lista') carregarAtivos();
+    if (aba === 'pecas') carregarPecas();
+    if (aba === 'suprimentos') carregarSuprimentos();
+    if (aba === 'dashboard') atualizarDashboard();
+    if (aba === 'usuarios') carregarUsuarios();
 }
