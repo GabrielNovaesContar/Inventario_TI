@@ -5,21 +5,26 @@ function getAuthHeaders() {
     const token = localStorage.getItem("token_ti");
     return {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` // O espaço depois do Bearer é obrigatório!
+        "Authorization": `Bearer ${token}`,
+        "Cache-Control": "no-cache, no-store, must-revalidate", // Obriga o navegador a buscar dados frescos
+        "Pragma": "no-cache"
     };
 }
 
 // =================== ATIVOS (EQUIPAMENTOS) ===================
 async function carregarAtivos() {
-    const response = await fetch(`${API_URL}/assets`, {
+    // CACHE BUSTER INFALÍVEL: Adiciona a hora atual em milissegundos na URL
+    const urlFiel = `${API_URL}/assets?t=${new Date().getTime()}`;
+
+    const response = await fetch(urlFiel, {
         method: "GET",
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        cache: "no-store" // Trava extra para garantir que não guarda na memória
     });
 
-    // Se o Python retornar 401, significa que o token é inválido ou venceu
     if (response.status === 401) {
         mostrarToast("Sessão expirada. Faça login novamente.", "error");
-        return sair(); // Função que está no auth.js para deslogar
+        return sair(); 
     }
 
     listaAtivosGlobal = await response.json();

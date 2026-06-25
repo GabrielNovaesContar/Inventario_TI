@@ -46,6 +46,7 @@
                 <button id="btn-aba-suprimentos" onclick="mudarAba('suprimentos')" class="hover:text-blue-400 font-semibold transition px-2 py-1 rounded">Toners e Drums</button>
                 <button id="btn-aba-dashboard" onclick="mudarAba('dashboard')" class="hover:text-blue-400 font-semibold transition px-2 py-1 rounded">Dashboard</button>
                 <button id="btn-aba-usuarios" onclick="mudarAba('usuarios')" class="hover:text-blue-400 font-semibold transition px-2 py-1 rounded">Usuários</button>
+                <button id="btn-aba-auditoria" onclick="mudarAba('auditoria')" class="hover:text-blue-400 font-semibold transition px-2 py-1 rounded">Auditoria</button>
             </div>
             <button onclick="sair()" class="bg-slate-700 px-4 py-2 rounded hover:bg-red-600 text-sm font-bold transition">Sair</button>
         </nav>
@@ -217,16 +218,42 @@
                 </div>
             </div>
 
+            <div id="aba-auditoria" class="hidden animate-fade-in">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold">Trilha de Auditoria do Sistema</h2>
+                        <p class="text-sm text-slate-500 mt-1">Registo inalterável de todas as ações realizadas na plataforma.</p>
+                    </div>
+                    <button onclick="carregarAuditoria()" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded hover:bg-slate-300 transition text-sm flex items-center gap-2 shadow-sm">
+                        🔄 Recarregar Logs
+                    </button>
+                </div>
+                <div class="bg-white rounded-lg shadow overflow-hidden border border-slate-200">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800 text-white border-b border-slate-300">
+                                <th class="p-4 font-bold text-sm tracking-wide">Data / Hora</th>
+                                <th class="p-4 font-bold text-sm tracking-wide">Usuário Responsável</th>
+                                <th class="p-4 font-bold text-sm tracking-wide">Ação</th>
+                                <th class="p-4 font-bold text-sm tracking-wide">Módulo (Tabela)</th>
+                                <th class="p-4 font-bold text-sm tracking-wide">Detalhes Técnicos do Registo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-auditoria" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
             <div id="aba-dashboard" class="hidden animate-fade-in">
-    <div class="flex justify-between items-end mb-6">
-        <div>
-            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Painel de Controle TI</h2>
-            <p class="text-slate-500 text-sm mt-1">Visão geral do parque tecnológico e suprimentos.</p>
-        </div>
-        <button onclick="atualizarDashboard()" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded hover:bg-slate-300 transition text-sm flex items-center gap-2">
-            🔄 Atualizar Dados
-        </button>
-    </div>
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Painel de Controle TI</h2>
+                        <p class="text-slate-500 text-sm mt-1">Visão geral do parque tecnológico e suprimentos.</p>
+                    </div>
+                    <button onclick="atualizarDashboard()" class="bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded hover:bg-slate-300 transition text-sm flex items-center gap-2">
+                        🔄 Atualizar Dados
+                    </button>
+                </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         
@@ -479,5 +506,6 @@
     <script src="js/supplies.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/users.js"></script>
+    <script src="js/audit.js"></script>
 </body>
 </html>

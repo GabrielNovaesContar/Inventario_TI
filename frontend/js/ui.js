@@ -34,7 +34,7 @@ document.getElementById('btn-confirmar').addEventListener('click', () => {
 
 function mudarAba(aba) {
     // 1. Array atualizado com a aba "usuarios"
-    ["lista", "pecas", "suprimentos", "dashboard", "usuarios"].forEach(id => {
+    ["lista", "pecas", "suprimentos", "dashboard", "usuarios", "auditoria"].forEach(id => {
         document.getElementById(`aba-${id}`).classList.add("hidden");
         document.getElementById(`btn-aba-${id}`).classList.remove("bg-slate-800");
     });
@@ -49,4 +49,5 @@ function mudarAba(aba) {
     if (aba === 'suprimentos') carregarSuprimentos();
     if (aba === 'dashboard') atualizarDashboard();
     if (aba === 'usuarios') carregarUsuarios();
+    if (aba === 'auditoria') carregarAuditoria();
 }
