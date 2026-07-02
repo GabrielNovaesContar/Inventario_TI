@@ -1,0 +1,25 @@
+
+services:
+  # SERVIÇO 1: O Backend (FastAPI)
+  api:
+    build: ./backend
+    container_name: ti_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # CRÍTICO: Isso garante que o seu banco SQLite não suma se o contêiner reiniciar!
+      - ./backend/inventario.db:/app/inventario.db
+    restart: unless-stopped
+
+  # SERVIÇO 2: O Frontend (Servidor Web Nginx)
+  web:
+    image: nginx:alpine
+    container_name: ti_frontend
+    ports:
+      - "8081:80"
+    volumes:
+      # Pega a sua pasta frontend e injeta no Nginx
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - api
+    restart: unless-stopped
